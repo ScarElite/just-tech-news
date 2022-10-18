@@ -1,9 +1,8 @@
 const router = require("express").Router();
 const { User, Post, Vote } = require("../../models");
 
-// GET /api/users
+// get all users
 router.get("/", (req, res) => {
-  // Access our User model and run .findAll() method
   User.findAll({
     attributes: { exclude: ["password"] },
   })
@@ -14,7 +13,6 @@ router.get("/", (req, res) => {
     });
 });
 
-// GET /api/users/1
 router.get("/:id", (req, res) => {
   User.findOne({
     attributes: { exclude: ["password"] },
@@ -47,9 +45,8 @@ router.get("/:id", (req, res) => {
     });
 });
 
-// POST /api/users
 router.post("/", (req, res) => {
-  // Expects {username: "Lernantino", email: "lernantino@gmail.com", password: "password1234"}
+  // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
   User.create({
     username: req.body.username,
     email: req.body.email,
@@ -70,26 +67,25 @@ router.post("/login", (req, res) => {
     },
   }).then((dbUserData) => {
     if (!dbUserData) {
-      res.status(404).json({ message: "No user with that email address!" });
+      res.status(400).json({ message: "No user with that email address!" });
       return;
     }
 
-    // Verify User
     const validPassword = dbUserData.checkPassword(req.body.password);
 
     if (!validPassword) {
       res.status(400).json({ message: "Incorrect password!" });
       return;
     }
-    res.json({ user: dbUserData, message: "You are now logged in" });
+
+    res.json({ user: dbUserData, message: "You are now logged in!" });
   });
 });
 
-// PUT /api/users/1
 router.put("/:id", (req, res) => {
   // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
 
-  // if req.body has exact key/value pairs to match the model, you can just use `req.body` instead
+  // pass in req.body instead to only update what's passed through
   User.update(req.body, {
     individualHooks: true,
     where: {
@@ -109,7 +105,6 @@ router.put("/:id", (req, res) => {
     });
 });
 
-// DELETE /api/users/1
 router.delete("/:id", (req, res) => {
   User.destroy({
     where: {

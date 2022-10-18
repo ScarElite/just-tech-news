@@ -1,12 +1,11 @@
 const router = require("express").Router();
 const sequelize = require("../../config/connection");
-const { Post, User, Vote } = require("../../models/");
+const { Post, User, Vote } = require("../../models");
 
 // get all users
 router.get("/", (req, res) => {
-  console.log("========================");
+  console.log("======================");
   Post.findAll({
-    // Query configuration
     attributes: [
       "id",
       "post_url",
@@ -14,7 +13,7 @@ router.get("/", (req, res) => {
       "created_at",
       [
         sequelize.literal(
-          "(SELECT COUNT(*) FROM vote WHERE post.id = vote post_id)"
+          "(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)"
         ),
         "vote_count",
       ],
@@ -60,7 +59,7 @@ router.get("/:id", (req, res) => {
   })
     .then((dbPostData) => {
       if (!dbPostData) {
-        res.status(404).json({ message: "No post found with this is" });
+        res.status(404).json({ message: "No post found with this id" });
         return;
       }
       res.json(dbPostData);
@@ -72,7 +71,7 @@ router.get("/:id", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  // Expects {title: 'Taskmaster goes public!', post_url: 'https://taskmaster.com/press', user_id: 1}
+  // expects {title: 'Taskmaster goes public!', post_url: 'https://taskmaster.com/press', user_id: 1}
   Post.create({
     title: req.body.title,
     post_url: req.body.post_url,
@@ -85,7 +84,6 @@ router.post("/", (req, res) => {
     });
 });
 
-// PUT /api/posts/upvote
 router.put("/upvote", (req, res) => {
   // custom static method created in models/Post.js
   Post.upvote(req.body, { Vote })
